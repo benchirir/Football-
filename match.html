@@ -1,0 +1,27 @@
+using UnityEngine;
+
+public class MatchManager : MonoBehaviour
+{
+    public int homeScore = 0;
+    public int awayScore = 0;
+    public float matchTime = 0f;
+    public bool isMatchActive = true;
+
+    void Update()
+    {
+        if (isMatchActive)
+        {
+            matchTime += Time.deltaTime;
+        }
+    }
+
+    public void GoalHome()
+    {
+        homeScore++;
+    }
+
+    public void GoalAway()
+    {
+        awayScore++;
+    }
+}
