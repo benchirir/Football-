@@ -1,95 +1,53 @@
 using UnityEngine;
 
-public class EliteFootballGameStarter : MonoBehaviour { [Header("Player Settings")] public CharacterController controller; public Transform ball; public float moveSpeed = 6f; public float sprintSpeed = 9f; public float turnSmoothTime = 0.08f; public float shootForce = 12f; public float passForce = 7f;
-
-[Header("Ground Check")]
-public Transform groundCheck;
-public float groundDistance = 0.4f;
-public LayerMask groundMask;
-
-private float turnSmoothVelocity;
-private Vector3 velocity;
-private bool isGrounded;
-private float gravity = -9.81f;
-
-private Rigidbody ballRb;
-
-void Start()
+public class PlayerController : MonoBehaviour
 {
-    if (ball != null)
+    public CharacterController controller;
+    public float speed = 6f;
+    public float sprintSpeed = 9f;
+    public Transform ball;
+
+    void Update()
     {
-        ballRb = ball.GetComponent<Rigidbody>();
-    }
-}
-
-void Update()
-{
-    HandleMovement();
-    HandleBallActions();
-}
-
-void HandleMovement()
-{
-    isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-    if (isGrounded && velocity.y < 0)
-    {
-        velocity.y = -2f;
+        MovePlayer();
+        HandleBallActions();
     }
 
-    float horizontal = Input.GetAxisRaw("Horizontal");
-    float vertical = Input.GetAxisRaw("Vertical");
-
-    Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-
-    if (direction.magnitude >= 0.1f)
+    void MovePlayer()
     {
-        float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
 
-        float speed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : moveSpeed;
-        controller.Move(direction * speed * Time.deltaTime);
+        Vector3 move = transform.right * x + transform.forward * z;
+
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
+
+        controller.Move(move * currentSpeed * Time.deltaTime);
     }
 
-    velocity.y += gravity * Time.deltaTime;
-    controller.Move(velocity * Time.deltaTime);
-}
-
-void HandleBallActions()
-{
-    if (ballRb == null) return;
-
-    float distanceToBall = Vector3.Distance(transform.position, ball.position);
-
-    if (distanceToBall < 2.2f)
+    void HandleBallActions()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Vector3.Distance(transform.position, ball.position) < 2f)
         {
-            ShootBall();
-        }
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Shoot();
+            }
 
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            PassBall();
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Pass();
+            }
         }
     }
-}
 
-void ShootBall()
-{
-    ballRb.linearVelocity = Vector3.zero;
-    Vector3 shootDirection = transform.forward + Vector3.up * 0.15f;
-    ballRb.AddForce(shootDirection.normalized * shootForce, ForceMode.Impulse);
-    Debug.Log("Shot taken");
-}
+    void Shoot()
+    {
+        ball.GetComponent<Rigidbody>().AddForce(transform.forward * 12f + Vector3.up * 2f, ForceMode.Impulse);
+    }
 
-void PassBall()
-{
-    ballRb.linearVelocity = Vector3.zero;
-    Vector3 passDirection = transform.forward;
-    ballRb.AddForce(passDirection.normalized * passForce, ForceMode.Impulse);
-    Debug.Log("Pass made");
-}
-
+    void Pass()
+    {
+        ball.GetComponent<Rigidbody>().AddForce(transform.forward * 7f, ForceMode.Impulse);
+    }
 }
