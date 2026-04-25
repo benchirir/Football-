@@ -1,0 +1,19 @@
+using UnityEngine;
+
+public class SimpleAI : MonoBehaviour
+{
+    public Transform ball;
+    public float speed = 4f;
+
+    void Update()
+    {
+        if (ball != null)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                ball.position,
+                speed * Time.deltaTime
+            );
+        }
+    }
+}
