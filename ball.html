@@ -1,0 +1,21 @@
+using UnityEngine;
+
+public class BallController : MonoBehaviour
+{
+    public Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void Update()
+    {
+        ApplyFriction();
+    }
+
+    void ApplyFriction()
+    {
+        rb.velocity *= 0.98f;
+    }
+}
